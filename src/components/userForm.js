@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Select, message, Row, Col } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Form, Input, Button, Select, Row, Col } from 'antd';
+import { message } from 'antd';
 import UserService from '../services/userService';
 import { useRef } from 'react';
 
@@ -8,42 +9,42 @@ const { Option } = Select;
 const UserForm = ({ user, onClose, onRefresh }) => {
     const formRef = useRef(null);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        formRef.current.resetFields(); // to reset form fields
+    }, [user]);
+
+    //Function to handle add and edit API request
     const onFinish = async (values) => {
         setLoading(true);
-        try {
-            if (user) {
-                UserService.updateUser(user.id, values)  // Use updateUser instead of deleteUser
-                    .then((res) => {
-                        message.success('User updated successfully.');    
-                    })
-                    .catch((e) => {
-                        message.error('Failed to update user.');
-                    })
-                    .finally(() => {
-                        setLoading(false);
-                        formRef.current.resetFields();
-                    });
-            } else {
-                UserService.addUser(values)  // Use addUser instead of deleteUser
-                    .then((res) => {
-                        console.log("res", res);
-                        message.success('User added successfully.');
-                    })
-                    .catch((e) => {
-                        message.error('Failed to add user.');
-                    })
-                    .finally(() => {
-                        setLoading(false);
-                        formRef.current.resetFields();
-                    });
-            }
-            onRefresh();
-            onClose();
-        } catch (error) {
-            message.error('Failed to save user.');
-        } finally {
-            setLoading(false);
+        if (user) {
+            UserService.updateUser(user.id, values)
+                .then((res) => {
+                    message.success('User updated successfully.');
+                })
+                .catch((e) => {
+                    message.error('Failed to update user.');
+                })
+                .finally(() => {
+                    setLoading(false);
+                    formRef.current.resetFields();
+                });
+        } else {
+            UserService.addUser(values)
+                .then((res) => {
+                    message.success('User added successfully.');
+                })
+                .catch((e) => {
+                    message.error('Failed to add user.');
+                })
+                .finally(() => {
+                    setLoading(false);
+                    formRef.current.resetFields();
+                });
         }
+        onRefresh();
+        onClose();
+
     };
 
     return (
@@ -51,7 +52,7 @@ const UserForm = ({ user, onClose, onRefresh }) => {
             layout="vertical"
             onFinish={onFinish}
             ref={formRef}
-            style={{display:'flex', flexDirection:'column'}}
+            style={{ display: 'flex', flexDirection: 'column' }}
             initialValues={user || { department: 'Engineering' }}
         >
             <Row gutter={5}>
@@ -88,36 +89,36 @@ const UserForm = ({ user, onClose, onRefresh }) => {
                 </Col>
                 <Col span={12}>
                     <Form.Item
-                    name="email"
-                    label="Email"
-                    rules={[
-                        { required: true, message: 'Please enter email.' },
-                        { type: 'email', message: 'Please enter a valid email.' },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
+                        name="email"
+                        label="Email"
+                        rules={[
+                            { required: true, message: 'Please enter email.' },
+                            { type: 'email', message: 'Please enter a valid email.' },
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
                 </Col>
                 <Col span={12}>
                     <Form.Item
-                  name="phone"
-                  label="Phone Number"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter the phoneNumber",
-                    },
-                    {
-                      pattern: /^[0-9]{10}$/,
-                      message: "Please enter a valid 10-digit phone number",
-                    },
-                  ]}
-                >
-                  <Input
-                    type="tel"
-                    placeholder="Phone Number"
-                  />
-                </Form.Item>
+                        name="phone"
+                        label="Phone Number"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Please enter the phoneNumber",
+                            },
+                            {
+                                pattern: /^[0-9]{10}$/,
+                                message: "Please enter a valid 10-digit phone number",
+                            },
+                        ]}
+                    >
+                        <Input
+                            type="tel"
+                            placeholder="Phone Number"
+                        />
+                    </Form.Item>
                 </Col>
                 <Col span={12}>
                     <Form.Item
@@ -136,7 +137,7 @@ const UserForm = ({ user, onClose, onRefresh }) => {
                         name="company"
                         label="Company"
                         rules={[
-                           
+
                             { message: 'Please enter a valid company.' },
                         ]}
                     >
@@ -174,7 +175,7 @@ const UserForm = ({ user, onClose, onRefresh }) => {
                 <Button type="primary" htmlType="submit" loading={loading}>
                     {user ? 'Update User' : 'Add User'}
                 </Button>
-            </Form.Item>   
+            </Form.Item>
         </Form>
     );
 };

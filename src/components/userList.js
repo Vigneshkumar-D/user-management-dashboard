@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, message, ConfigProvider, Tooltip } from 'antd';
+import { Table, Button, message, ConfigProvider, Tooltip, Modal } from 'antd';
 import UserService from '../services/userService';
 import { BiEditAlt } from 'react-icons/bi';
 import { MdDeleteOutline } from 'react-icons/md';
@@ -14,6 +14,7 @@ const UserList = ({ onEdit, onAdd }) => {
         fetchUsers();
     }, []);
 
+    //Function to handle delete search operation
     const handleSearch = (value) => {
         setSearchText(value);
         const filtered = users.filter((user) =>
@@ -23,7 +24,8 @@ const UserList = ({ onEdit, onAdd }) => {
         );
         setFilteredData(filtered);
     };
-
+    
+    //Initial API call to fetch all users
     const fetchUsers = async () => {
         setLoading(true);
         UserService.getAllUsers()
@@ -53,10 +55,12 @@ const UserList = ({ onEdit, onAdd }) => {
             });
     };
 
+    //Function to handle delete API request
     const handleDelete = async (id) => {
         setLoading(true)
         UserService.deleteUser(id).then((res) => {
             message.success('User deleted successfully.');
+            console.log("delete");
         })
         .catch((e) => {
             message.error('Failed to fetch users.');
@@ -119,12 +123,12 @@ const UserList = ({ onEdit, onAdd }) => {
             key: 'actions',
             render: (_, record) => (
                 <div>
-                    <Button onClick={() => onEdit(record)} type="link">
+                    <Button style={{padding:"5px"}} onClick={() => onEdit(record)} type="link">
                         <Tooltip title="Edit">
                             <BiEditAlt style={{ fontSize: '20px' }} />
                         </Tooltip>
                     </Button>
-                    <Button onClick={() => handleDelete(record.id)} type="link" danger>
+                    <Button style={{padding:"5px"}} onClick={() => handleDelete(record.id)} type="link" danger>
                         <Tooltip title="Delete">
                             <MdDeleteOutline style={{ fontSize: '20px' }} />
                         </Tooltip>
@@ -133,7 +137,7 @@ const UserList = ({ onEdit, onAdd }) => {
             ),
         },
     ];
-
+      
     return (
         <div style={{ display: 'flex', flexDirection: 'column', marginTop: '10px', width: '95%', alignSelf: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -171,6 +175,7 @@ const UserList = ({ onEdit, onAdd }) => {
                     }}
                 />
             </ConfigProvider>
+
         </div>
     );
 };
